@@ -1,0 +1,152 @@
+##########
+Point-01) Red Hat OpenShift product and add-ons.
+
+##########
+Point-02) Classroom environment (Consider like OCP/OVE/OKE deployment Day0).
+1-) Users details:-
+2-) Domain/Network details:-
+3-) VMs/Servers details:-
+
+1-) Users details:-
+    Login to VMs/Servers.
+    - student/student (sudo access)
+    - root/redhat   
+    Login to OpenShift Cluster.
+    - admin/redhatocp      (This account is LDAP, and having "cluster-admin" access)
+      FYI- "cluster-admin" is same as root account w.r.t Linux.
+    - developer/developer  (Basic User account)
+    - kubeadmin/password - we will discuss later.
+
+    API URL - https://api.clusterName.baseDomain:port  
+	        - https://api.ocp4.example.com:6443
+
+            - clusterName =	ocp4 
+            - baseDomian  = example.com 
+            - Default Port= 6443 			
+	
+    Web Console - https://appName-nsName.apps.clusterName.baseDomian
+                - https://console-openshift-console.apps.ocp4.example.com 	
+	
+	$ oc login -u admin -p redhatocp https://api.ocp4.example.com:6443
+	
+	Example:-
+	Citi's Banking project deployment on OpenShift across India.
+
+	 Cluster-01:-
+	 baseDomain=citi.com
+     clusterName=del 
+	 API URL - https://api.del.citi.com:6443 
+	 Web URL - https://console-openshift-console.apps.del.citi.com 
+	 
+     Cluster-02
+	 baseDomain=citi.com
+     clusterName=mum
+     API URL - https://api.mum.citi.com:6443 
+	 Web URL - https://console-openshift-console.apps.mum.citi.com 
+
+
+     Cluster-03
+	 baseDomain=citi.com
+     clusterName=blr
+     API URL - https://api.blr.citi.com:6443 
+	 Web URL - https://console-openshift-console.apps.blr.citi.com 
+
+
+2-) Domain/Network details:-
+    Network Name              Domain Name               IP Range 
+	Classroom Network         example.com              172.25.252.0/24
+	Student Network           lab.example.com          172.25.250.0/24 
+	Cluster Network           ocp4.example.com         192.168.50.0/24
+	Isolated Network          ocp4-other.example.com   192.168.51.0/24 
+	
+3-) VMs/Servers details:-   
+    1- workstation.lab.example.com   [JUMP server, allow login to OCP clusterlas using CLI/Web Console]
+	2- bastion.lab.example.com       [Connect Student Network to Classroom, also consider DNS]
+	3- classroom.example.com         [Allow to connect internet for registry/code-repo]
+    4- utility.lab.example.com       [HAproxy/Apache/PXE/NFS-Server etc, connect student to cluster network]
+    5- registry.ocp4.example.com     [Image registry, also as git repo] 	
+	   git.ocp4.example.com          [Same node, CNAME for DNS record]
+	6- idm.ocp4.example.com          [LDAP server - integrated with OpenShift]
+	7- master01.ocp4.example.com     [OpenShift node master/worker roles ; SNO "Single Node OpenShift"]
+	
+	local storage:- nfs-server (SC/PV/PVC -> used by application).
+
+##########
+Point-03
+
+Phase-01# 
+Unit-3) Authentication & Authorization 
+    - Authentication via OAuth 
+	- Authorization via RBAC
+	
+Unit-1) Declarative resource Management 
+    - Resource Manifest 
+	- Kustomize & Overlay
+	
+Unit-2) Deploying Packaged applications.
+    - OpenShift Template 
+	- Helm Chart 
+
+Phase-02#
+Unit-4) Network Security  
+    - Protecting External Traffic with TLS 
+    - Configuring Network Policies 
+    - Protecting Internal Traffic with TLS
+	
+Unit-5) Exposing non-HTTP/SNI Applications
+    - Load Balancer Services
+    - Configure Multus Secondary Networks
+	
+Unit-6) Enabling Developer Self-service
+    - ResourceQuota 
+	- LimitRange 
+	- The Project Template and the Self-provisioner Role
+
+Unit-7) Managing Kubernetes Operators
+    - Kubernetes Operators and the Operator Lifecycle Manager 
+    - Installing Operators by Using the Web Console 
+    - Installing Operators with the CLI 
+	
+Unit-8) Application Security
+    - Controlling Application Permissions with Security Context Constraints 
+    - Allowing Application Access to Kubernetes APIs.
+    - Cluster and Node Maintenance with Kubernetes Cron Jobs 
+	
+Unit-9) OpenShift Updates
+    - Updating Clusters 
+    - Detecting Deprecated Kubernetes API Usage 
+    - Updating Operators with the OLM 
+    - OpenShift Updates
+
+
+####################################################################
+Phase-01# 
+Unit-3) Authentication & Authorization 
+    - Authentication via OAuth 
+	- Authorization via RBAC
+	
+ - Authentication w.r.t OpenShift.
+   1) "Token" Based authetication 
+       OAUTH -> OpenShift-APiserver -> Kube-apiserver 
+   
+   2) "Client Certificate" based authetication
+       Client Certificate -> kube-apiserver     
+   
+   1) "Token" Based authetication
+       - Token based authetication via OAuth service.
+	   - OAuth service is an identity Broker (Deal with Identity Providers "IdPs" on behalf of OpenShift).
+	   - IdP's htpasswd, LDAP, AD, OPenID connect etc. 
+   
+       $ oc login -u admin -p redhatocp https://api.ocp4.example.com:6443 
+	   $ oc whoami 
+	   admin 
+	   $ oc whoami -t 
+	   akjsdhjsadhkjas98798766hashdjkaso
+	   
+	   Token = userName + Password.
+	   
+	   $ oc login --token=akjsdhjsadhkjas98798766hashdjkaso --server=https://api.ocp4.example.com:6443 
+	   
+	   
+	   
+   
