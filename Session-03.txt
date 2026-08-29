@@ -1,0 +1,140 @@
+###Point-01#
+#Product - Red Hat OpenShift.
+Product Edition:-
+1-) Cloud Service Edition:-
+ - Red Hat OpenShift on AWS (ROSA)
+ - Azure Red Hat OpenShift (ARO)
+ - Red Hat OpenShift Dedicated (Platfrom used AWS/GCP; POC=RH)
+ - Red Hat OpenShift on IBM Cloud.
+ 
+2-) Self Edition:-
+ - Red Hat OpenShift Kubernetes Engine (RHOKE)
+ - Red Hat OpenShift Container Platfrom (RHOCP)
+ - Red Hat OpenShift Virtualization Engine (RHOVE)
+ - Red Hat OpenShift Platfrom Plus (RHOPP)
+ 
+Point-02# CLassroom Environment:-
+ 1- Users Details:-
+    Login to VMs/Servers
+	- student/student (sudo access)
+    - root/redhat
+
+    Login to OpenShift cluster
+	- admin/redhatocp (cluster-admin access)
+	- developer/developer (basic user)
+	- API URL - https://api.ocp4.example.com:6443 
+	Example to login to OCP cluster:-
+	$ oc login -u admin -p redhatocp https://api.ocp4.example.com:6443 
+	
+ 2- Domain Network 
+     lab.example.com     [Gateway/Jump server network]
+	 ocp4.example.com    [Cluster Network]
+	 
+ 3- Server/VMs:-
+    workstation.lab.example.com       [Jump server - Required client to sync with OCP cluster - oc/helm etc]
+    bastion/utility.lab.example.com   [imp services running - DNS/DHCP/HAproxy/PXE/NFS-Server etc]
+	master01.ocp4.example.com         [OpenShift cluster node - SNO -> Single Node OpenShift]
+	registry.ocp4.example.com         [Image registry]
+	git.ocp4.example.com              [GitOps operations]
+	idm.ocp4.example.com              [LDAP server]
+
+
+##########
+Point-03
+
+Phase-01# 
+Unit-3) Authentication & Authorization 
+    - Authentication via OAuth 
+	- Authorization via RBAC
+	
+Unit-1) Declarative resource Management 
+    - Resource Manifest 
+	- Kustomize & Overlay
+	
+Unit-2) Deploying Packaged applications.
+    - OpenShift Template 
+	- Helm Chart 
+
+--------------------------------------------------------------------------------------------
+Unit-3-# Authentication and Authorization.
+ - Configuring the HTPasswd Identity Provider
+ - Defining and Applying Permissions with RBAC
+ 
+ Authentication Vs Authorization
+ Example:-
+  server01 -> RHEL8
+event-01
+ $ ssh user@server01
+  Password: 
+ $ whaomi 
+  user 
+
+event-02
+ $ sudo ./myscript.sh   
+
+ ssh  - authentication 
+ sudo - authorization 
+ 
+ 
+ Authentication w.r.t OpenShift:-
+ 1-) Token Based authentication
+ 2-) Client Certificate Based authentication
+ 
+- Token Based authentication
+  - OAuth used for token based authentication w.r.t OpenShift.
+  - OAuth is cluster-service w.r.t OpenShift.
+  - OAuth is an Identity Broker (ON behalf of OpenShift, OAuth sync with Identity Providers "IdPs").
+  - Once authentication successfully done, then OAuth provides token.
+  - Identity Providers used for authentication like:-
+    1- htpasswd  [do280]
+	2- LDAP      [do280 additonally]
+	3- Active Directory (AD)
+	4- OpenID Connect (OIDC) - AWS IAM, PingIdentity etc 
+	5- keystone etc 
+	
+	$ oc login -u admin -p redhatocp https://api.ocp4.example.com:6443 
+	$ oc whoami 
+	$ oc whoami -t 
+	
+	userName/passoword -> w.r.t Identity Provider (htpasswd,LDAP etc)
+	API URL -> https://api.clusterName.baseDomain:6443 
+    w.r.t DO280 LAB:-
+	 clusterName - ocp4 
+	 baseDomain  - example.com 
+	 
+Task-01# How to create openshift's user and login to OCP cluster?
+Step-1 - Create local database (User's details).
+   $ htpasswd --help 
+   $ htpasswd -c -b -B htpasswd-file-upload-anyname user1 redhat 
+   $ htpasswd  -b -B htpasswd-file-upload-anyname user2 redhat
+   $ htpasswd  -b -B htpasswd-file-upload-anyname user3 redhat
+   $ htpasswd  -b -B htpasswd-file-upload-anyname user4 redhat
+   $ htpasswd  -b -B htpasswd-file-upload-anyname user5 redhat
+   $ cat htpasswd-file-upload-anyname
+
+Step-2 Create secret (Type=generic) and hold these information. 
+- Inject/update to OpenShift cluster with these information.
+
+  $ oc create secret generic secret-sre-team --from-file htpasswd=htpasswd-file-upload-anyname -n openshift-config 
+  $ oc get secret secret-sre-team -n openshift-config 
+  $ oc get secret secret-sre-team -n openshift-config -o yaml 
+  
+Step-3 Update to OAuth.
+ $ oc get oauth cluster 
+ $ oc get oauth cluster -o yaml 
+ $ oc get oauth cluster -o yaml > oauth.yaml  
+ $ oc get oauth cluster -o yaml > oauth-bkp.yaml
+ $ vim oauth.yaml 
+  
+Append below points 
+- name: my_identity_provider
+  mappingMethod: claim 
+  type: HTPasswd
+  htpasswd:
+   fileData:
+     name: htpass-secret
+	 
+	
+ $ oc apply -f oauth.yaml 
+ $ oc get pods -n openshift-config 
+ $ oc login -u user2 -p redhat https://api.ocp4.example.com:6443 
