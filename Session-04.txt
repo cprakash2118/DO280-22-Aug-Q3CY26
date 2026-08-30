@@ -1,0 +1,58 @@
+Recap (5mins).
+1- Login to OCP cluster as cluster-admin (admin/redhatocp)
+   API URL - https://api.ocp4.example.com:6443 
+   clusterName=ocp4 
+   baseDomain=example.com 
+  
+  $ oc login -u admin -p redhatocp https://api.ocp4.example.com:6443 
+  
+2- Authentication type w.r.t OpenShift cluster.
+   1- TOken based authetication 
+   2- Client Certirficate based authetication
+   
+   TOken based authetication:-
+   OAuth as an "Identity Broker", it sync with all IdPs.
+   IdPs - Identity Providers 
+   List of IdPs:-
+   1- htpasswd 
+   2- LDAP 
+   3- AD 
+   4- OpenID Connect (OIDC - RHSSO, AWS IAM, PingIdentity etc)
+   
+   As per DO280v418 - htpasswd (additonally - LDAP).
+   
+3- COnfigure htpasswd as IdP.
+
+Task-01# Create users based on be conditions.
+user1-5 ; secret Name=secret-sre-team w.r.t namespace=openshift-config ; IdP Name=IdP-htpasswd-SRE-Team 
+user6-10 ; secret Name=secret-devops-team w.r.t namespace=openshift-config ; IdP Name=IdP-htpasswd-devops-Team
+user11-20 ; secret Name=secret-myapp-team w.r.t namespace=openshift-config ; IdP Name=IdP-htpasswd-MyApp-Team
+
+Task-02# Groups and Users:- 
+user1-5   -> group Name= sre-team     [cluster admin access - role Name="cluster-admin"]
+user6-10  -> group Name= devops-team 
+user11-20 -> group Name= myapp-team
+
+Task-03#
+user5 - delete, and adding user51 to SRE-Team 
+user7 - change the password "redhat to red" 
+
+------------------
+Authentication (via IdP using OAuth).
+Authorization via OAuth (Token exchange with OAuth & respective IdPs).
+OAuth provides token which hold the RBAC.
+
+IdP=htpasswd
+Step-1 Create user database (user/password)
+Step-2 Create secret, type generic & from-file w.r.t "openshift-config"
+Step-3 Update ouath (oc get oauth cluster -o yaml > oauth.yaml)
+Step-4 Verify the Oauth service (automatically OAuth pods restart).
+       oc get pods -n openshift-authentication 
+Step-5 Login to OCP cluster using new credentials.
+
+oc adm groups new group-name 
+oc adm groups add-users group-name user1 user2 
+
+oc adm policy add-cluster-role-to-group cluster-admin group-name
+
+We will discuss about ROLE/ROLEbinding or RBAC.
