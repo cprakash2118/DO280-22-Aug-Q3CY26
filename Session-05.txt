@@ -1,0 +1,117 @@
+#Quick Recap:-
+- Product:- Red Hat OpenShift 
+- Classroom Env 
+- Unit-3# Authentication & Authorization:-
+  Authentication:-
+  1-) Token Based Authentication.
+      - Via OAuth (Identity Broker).
+	  - Identity Broker (OAuth) sync with IdPs on behalf of OpenShift.
+      - OAuth sync with multiple IdPs (Identity Providers).
+      - List of Identity Providers (IdPs).  
+        a) htpasswd 
+        b) LDAP integration (Later part - LDAP Group Sync).
+        c) Active Directory (MS-AD)
+        d) OpenID Connect (OIDC - RHSSO, PingIdentity, AWS IAM etc).
+           etc ..
+		   
+	  - Required details (w.r.t DO280), while login to OpenShift cluster.
+	    1-) User Name -> admin (LDAP account)
+		2-) Password  -> redhatocp 
+		3-) API URL   -> https://api.ocp4.example.com:6443 
+		
+		FYI- 
+		- admin/redhatocp (cluster-admin access -> This is same as root access).
+		- API URL - https://api.clusterName.baseDomain:6443 
+		- clusterName -> ocp4 
+		- baseDomain -> example.com 
+		- Port (default) -> 6443 
+		- api.ocp4.example.com (External API URL - LB-HAProxy -> utility node)
+		- HAProxy route towards "master01-03.ocp4.example.com:6443"
+		
+		Example:-
+		$ oc login -u admin -p redhatocp https://api.ocp4.example.com:6443
+		$ oc whoami 
+		$ oc get nodes 
+		$ oc version 
+		$ oc get clusterversion 
+		
+		backend Flow w.r.t OAuth:-
+		1st-)
+		pods -> openshift-authentication (running on all master nodes - master01-03). 
+		pod  -> openshift-authentication-operator (Manage all pods/resources "openshift-authentication namespace)
+		
+		2nd-) 
+		pods -> openshift-apiserver (running on all master nodes - master01-03). 
+		pod  -> openshift-apiserver-operator (Manage all pods/resources "openshift-apiserver namespace)
+		
+		3rd-)
+		pods -> openshift-kube-apiserver (running on all master nodes - master01-03). 
+		pod  -> openshift-kube-apiserver-operator (Manage all pods/resources "openshift-kube-apiserver namespace)
+		
+		4th-)
+		pods -> openshift-kube-controller-manager (running on all master nodes - master01-03). 
+		pod  -> openshift-kube-controller-manager-operator (Manage all pods/resources "openshift-kube-controller-manager namespace)
+		
+		5th-)
+		pods -> openshift-kube-scheduler (running on all master nodes - master01-03). 
+		pod  -> openshift-kube-scheduler-operator (Manage all pods/resources "openshift-kube-scheduler namespace)
+		
+		
+		6th-)
+		pods -> openshift-etcd (running on all master nodes - master01-03). 
+		pod  -> openshift-etcd-operator (Manage all pods/resources "openshift-etcd namespace)
+		
+		
+     - configure OAuth with "htpasswd" as Identity Providers.
+	   Step-1# Create database using (htpasswd).
+	   Step-2# Create secret (generic) 
+	   Step-3# Update OAuth with htpasswd block 
+	   Step-4# Verify the crdentials.
+	   
+	2-) Certificate Based Authentication.
+        1) --kubeconfig 
+         Example:-
+          $ oc get nodes --kubeconfig /path/to/kubeconfig/file 
+		  
+        2) Load Environment variable.
+		 Example:-
+		   $ export KUBECONFIG=/path/to/kubeconfig/file
+		   $ env | grep KUBECONFIG
+		   $ oc version 
+		   $ oc get nodes 
+		   $ oc whoami 
+		   $ oc whoami -t 
+		   NO token 
+		   
+		   $ unset KUBECONFIG
+		   $ oc whoami -t
+		
+		3) Copy kubeconfig file to ~/.kube/config 
+          $ cp -rpv /path/to/kubeconfig/file ~/.kube/config
+          $ oc whoami 
+          NO token 
+          $ rm -rf ~/.kube
+          or 
+          $ mv ~/.kube /tmp
+
+-----------------------------------------------------------------------------------------
+ - Role Based Access Control (RBAC -> Authorization).
+   1) rule -> Action 
+   2) role -> Set of rules 
+   3) binding -> Assign role to user/group - role binding.
+
+   Role Binding:-
+   1-) ClusterRoleBindings (role scope w.r.t cluster)
+   2-) RoleBindings (role scope w.r.t namespace/local).
+
+   Defaults roles:-
+   cluster-admin  -> ClusterRole (it's same as root access w.r.t Linux).
+   cluster-reader -> clusterRole (read access w.r.t OpenShift cluster).
+   cluster-status -> ClusterRole (Able to check the status).
+   self-provisioner -> Users with this role can create their own projects.
+   admin          -> Role (Admin role w.r.t namespace/project)
+   edit           -> Edit resources (Secret,CM,Deployment, route, services etc w.r.t namespace)
+   view           -> Read acess w.r.t namespace.
+   basic          -> Basic access 
+   
+   
