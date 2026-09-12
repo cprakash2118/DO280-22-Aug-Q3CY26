@@ -1,0 +1,24 @@
+Point-1# Login to ROL (RedHat Online Learning) platform.
+  - Login to ROL using RedHat Login ID.
+    https://rol.redhat.com [Use RedHat Login ID]
+
+  - Access to "Resources" -> Click on "BookSelf" -> Download eBook (This is reference point).
+  - Access to "LAB" -> Click on "OPEN CONSOLE" w.r.t workstation.
+  - CLick on "Terminal" and access OCP cluster from workstation node.
+  - Login to OCP cluster via CLI.
+    Example:-
+    $ oc login -u admin -p redhatocp https://api.ocp4.example.com:6443 
+    $ oc whoami 
+    $ oc whoami -t 
+    $ oc version 
+    $ oc get nodes 
+    $ oc get clusterversion 
+
+  - Login to OCP cluster via WebConsole.
+    $ oc whoami --show-console 
+    https://console-openshift-console.apps.ocp4.example.com 
+    
+	Now click on "Red Hat Identity Management" 
+	Then use "admin" as user,"redhatocp" as password.
+	
+	
