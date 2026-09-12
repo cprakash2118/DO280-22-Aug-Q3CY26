@@ -20,5 +20,36 @@ Point-1# Login to ROL (RedHat Online Learning) platform.
     
 	Now click on "Red Hat Identity Management" 
 	Then use "admin" as user,"redhatocp" as password.
-	
-	
+
+- Task-01:-
+Step-1# Create database (user & password).
+ $ htpasswd -c -b -B htpasswd-sre-file user1 redhat 
+ $ htpasswd -b -B htpasswd-sre-file user2 redhat
+ $ htpasswd -b -B htpasswd-sre-file user3 redhat	
+ $ htpasswd -b -B htpasswd-sre-file user4 redhat
+ $ htpasswd -b -B htpasswd-sre-file user5 redhat
+ 
+ $ cat htpasswd-sre-file
+ 
+ 
+Step-2# Create Secret "name=secret-sre".
+ $ oc create secret generic secret-sre --from-file htpasswd=htpasswd-sre-file -n openshift-config 
+ $ oc get secret -n openshift-config
+ $ oc get secret secret-sre -n openshift-config
+ 
+ $ oc get secret secret-sre -n openshift-config -o yaml
+ $ oc get secret secret-sre -n openshift-config -o yaml > secret-sre.yaml 
+ or
+ $ oc get secret secret-sre -n openshift-config -o json 
+ $ oc get secret secret-sre -n openshift-config -o json > secret-sre.json 
+
+ $ mkdir work ; cd work 
+ $ ls -l 
+ $ oc extract secret/secret-sre --to=. -n openshift-config
+  htpasswd
+ $ cat htpasswd
+
+Step-3# Update to OAuth.
+  This we will discuss.
+  
+ 
