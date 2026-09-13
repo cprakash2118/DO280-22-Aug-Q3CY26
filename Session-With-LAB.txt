@@ -111,4 +111,37 @@ user11-20/redhat ; IdP Name=IdP-htpasswd-Myapp-Team
   Administration -> CLuster settings -> Configuration -> (Search fot oauth).
   Add Identity Provider 
   
-  
+User login validation:-  
+- for x in {11..20}; do oc login -u user$x -p redhat https://api.ocp4.example.com:6443 ; done
+
+
+### Groups and users assigment to respective groups
+user1-5   -> sre-grp 
+user6-10  -> devops-grp 
+user11-20 -> myapp -grp 
+
+
+sre-grp must be a cluster-admin access.
+devops-grp group only can create namespace (cluster-admin can do anything).
+Rest users unable to create project/namespace (by default all users are able to create namespace).
+
+
+
+$ oc get groups
+$ oc adm groups new sre-grp
+$ oc adm groups new devops-grp
+$ oc adm groups new myapp-grp
+
+$ oc adm groups add-users sre-grp user1 
+$ for x in {2..5}; do oc adm groups add-users sre-grp user$x  ; done
+
+$ oc adm groups add-users devops-grp user6 
+$ for x in {7..10}; do oc adm groups add-users devops-grp user$x  ; done
+
+$ oc adm groups add-users myapp-grp user11
+$ for x in {12..20}; do oc adm groups add-users myapp-grp user$x  ; done
+
+$ oc get groups
+
+
+$ oc adm policy add-cluster-role-to-group cluster-admin sre-grp 
