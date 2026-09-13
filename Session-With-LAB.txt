@@ -90,4 +90,25 @@ $ oc login -u user1 -p redhat https://api.ocp4.example.com:6443
 $ oc whoami
 user1 
 
-Same check for all users 		
+Same check for all users 
+------------------------------------------------------------------------------------------
+10 mins 
+user1-5/redhat ; IdP Name=IdP-htpasswd-SRE-Team 
+user6-10/redhat ; IdP Name=IdP-htpasswd-DevOps-Team 
+user11-20/redhat ; IdP Name=IdP-htpasswd-Myapp-Team 
+
+
+- use htpasswd utility to create files.
+  $ touch htpasswd-{sre,devops,myapp}-upload-file 
+  $ for x in {1..5}; do htpasswd -b -B htpasswd-sre-upload-file user$x redhat ; done
+  $ for x in {6..10}; do htpasswd -b -B htpasswd-devops-upload-file user$x redhat ; done  
+  $ for x in {11..20}; do htpasswd -b -B htpasswd-myaoo-upload-file user$x redhat ; done 
+
+- Now access Web Console and update oauth entries.  
+  $ oc whoami --show-console
+  https://console-openshift-console.apps.ocp4.example.com 
+  
+  Administration -> CLuster settings -> Configuration -> (Search fot oauth).
+  Add Identity Provider 
+  
+  
